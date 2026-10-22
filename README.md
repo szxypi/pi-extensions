@@ -57,6 +57,18 @@ Pi already reports these states with [OSC 7501](https://www.superlogical.com/rex
 
 Config `~/.pi/agent/terminal-status.json`: `{ "progress": "auto" | "on" | "off", "title": true }`. `PI_TERMINAL_STATUS=0` turns the extension off.
 
+### image-paste
+
+Paste a clipboard image into the prompt as `[Image #1]`, like Claude Code.
+
+- `Ctrl+V` (`Alt+V` in a native Windows console) reads the clipboard image through pi's own code. On WSL, pi tries `wl-paste` and then PowerShell.
+- The input box shows `[Image #N]` instead of a temporary file path. Backspace and the arrow keys treat the placeholder as one unit.
+- Submit sends the image to the model as an attachment. The placeholder stays in the message text.
+- Bash mode (`!`) keeps the temporary file path, because the text runs as a shell command.
+- Numbering restarts at 1 when you clear the input.
+- A placeholder recalled from history attaches no image.
+- `PI_IMAGE_PASTE=0` turns the extension off.
+
 ## Develop
 
 ```bash

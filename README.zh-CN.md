@@ -55,6 +55,18 @@ pi 本身已经支持 [OSC 7501](https://www.superlogical.com/rex/docs/build/pro
 
 配置文件 `~/.pi/agent/terminal-status.json`：`{ "progress": "auto" | "on" | "off", "title": true }`。设置 `PI_TERMINAL_STATUS=0` 关闭扩展。
 
+### image-paste 粘贴图片占位符
+
+粘贴剪贴板图片时，输入框显示 `[Image #1]`，效果与 Claude Code 相同。
+
+- 用 `Ctrl+V` 读取剪贴板（Windows 原生终端为 `Alt+V`）。读取沿用 pi 自带的实现，WSL 下依次尝试 wl-paste 和 PowerShell。
+- 输入框不再显示临时文件路径，改显示 `[Image #N]`。退格和方向键把占位符当成一个整体处理。
+- 提交时，图片作为附件发给模型，占位符保留在消息文本里。
+- bash 模式（`!` 开头）保留临时文件路径，因为文本会作为 shell 命令执行。
+- 清空输入后，编号从 1 重新开始。
+- 从历史记录召回的占位符不再带图。
+- 设置 `PI_IMAGE_PASTE=0` 关闭扩展。
+
 ## 开发
 
 ```bash
