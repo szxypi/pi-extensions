@@ -1,0 +1,31 @@
+{
+  "name": "pi-extensions",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A collection of small extensions for the pi coding agent.",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "pi-agent",
+    "pi-extension"
+  ],
+  "license": "MIT",
+  "author": "szxypi",
+  "homepage": "https://github.com/szxypi/pi-extensions#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/szxypi/pi-extensions.git"
+  },
+  "type": "module",
+  "pi": {
+    "extensions": [
+      "./extensions/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "test": "node --test test/*.test.ts"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}
