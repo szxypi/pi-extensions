@@ -67,6 +67,30 @@ pi 本身已经支持 [OSC 7501](https://www.superlogical.com/rex/docs/build/pro
 - 从历史记录召回的占位符不再带图。
 - 设置 `PI_IMAGE_PASTE=0` 关闭扩展。
 
+### claude-synced-skills Claude 同步技能去重
+
+Claude Code 把 claude.ai 的技能同步到 `~/.claude/skills/synced/<桶ID>/`，每个 claude.ai 账号一个桶。多个账号同时同步时，同一个技能会出现在多个桶里，版本各不相同。pi 会扫描整棵目录，对每个重名技能打印一行 `[Skill warnings] ... collision`，并按桶目录的字母序取第一个，常常是旧版本。
+
+这个扩展替换了这次扫描。它在 `resources_discover`（启动和 `/reload`）时读取每个桶的 `manifest.json`，每个技能名只返回一个 `SKILL.md` 文件路径。不需要人工维护桶 ID，新桶在下次启动或 `/reload` 时自动生效。
+
+- 选 `updatedAt` 最新的一份。相同时，选桶 `lastUpdated` 大的；再相同时，选桶目录名大的。
+- manifest 列出但 `SKILL.md` 不存在的条目会跳过，所以正在同步的桶不会遮住技能。manifest 缺失或损坏的桶整体跳过。
+- 默认跳过的技能（它们依赖 pi 没有的 claude.ai 连接器或记忆工具）：`skill-creator`、`docs`、`google-workspace`、`import-memory`、`morning`、`setup-writing-style`。
+
+必须配合忽略规则使用。在 `~/.claude/skills/.gitignore` 里加一行，让 pi 自己的扫描跳过这棵目录：
+
+```
+/synced/
+```
+
+没有这一行，pi 仍会加载整棵目录，碰撞告警不会消失。Claude Code 不读这个文件。
+
+配置文件 `~/.pi/agent/claude-synced-skills.json`（可省略）。`skip` 会替换默认跳过列表，空数组表示全部加载。JSON 损坏或类型错误时，使用默认列表。
+
+```json
+{ "skip": ["skill-creator", "docs"] }
+```
+
 ## 开发
 
 ```bash

@@ -69,6 +69,30 @@ Paste a clipboard image into the prompt as `[Image #1]`, like Claude Code.
 - A placeholder recalled from history attaches no image.
 - `PI_IMAGE_PASTE=0` turns the extension off.
 
+### claude-synced-skills
+
+Claude Code syncs claude.ai skills into `~/.claude/skills/synced/<bucket>/`, one bucket per claude.ai account. When several accounts sync, the same skill exists in several buckets with different versions. Pi scans that tree and prints a `[Skill warnings] ... collision` line for each duplicate name. It keeps the first bucket in alphabetical order, which is often the oldest version.
+
+This extension replaces that scan. On `resources_discover` (startup and `/reload`) it reads each bucket's `manifest.json` and returns one `SKILL.md` file path per skill name. You maintain no bucket IDs, and new buckets are picked up on the next start or `/reload`.
+
+- Newest `updatedAt` wins. A tie goes to the bucket with the larger `lastUpdated`, then to the larger bucket directory name.
+- A manifest entry whose `SKILL.md` is missing is skipped, so a bucket in the middle of a sync does not hide the skill. A missing or broken manifest skips that bucket.
+- Skipped by default (they need claude.ai connectors or memory tools that pi does not have): `skill-creator`, `docs`, `google-workspace`, `import-memory`, `morning`, `setup-writing-style`.
+
+Use it together with an ignore rule. Add this line to `~/.claude/skills/.gitignore` so pi's own scan skips the tree:
+
+```
+/synced/
+```
+
+Without that line, pi still loads the whole tree and the collisions stay. Claude Code does not read this file.
+
+Config `~/.pi/agent/claude-synced-skills.json` (optional). `skip` replaces the default skip list. An empty list loads everything. Invalid JSON or a wrong type falls back to the default list.
+
+```json
+{ "skip": ["skill-creator", "docs"] }
+```
+
 ## Develop
 
 ```bash
