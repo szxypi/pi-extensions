@@ -91,6 +91,22 @@ Claude Code 把 claude.ai 的技能同步到 `~/.claude/skills/synced/<桶ID>/`�
 { "skip": ["skill-creator", "docs"] }
 ```
 
+### gateway-models 网关模型过滤
+
+pi 的 `models.json` 没有从网关自动发现模型的选项。这个扩展为一个 provider 注册 `refreshModels` hook。hook 从 `models.json` 读取该 provider 的模型，请求 `<baseUrl>/models`，只保留网关仍列出的模型。网关下线的模型会从模型列表中消失。
+
+- 模型元数据（上下文窗口、思考等级、模型级 `api`）仍保存在 `models.json`。OpenAI 风格的 `/models` 响应只有 `id`、`created` 和 `owned_by`。
+- 请求失败、超时（8 秒）或响应格式异常时，返回 `models.json` 的原列表。过滤后为空时也返回原列表，所以网关故障不会删光所有模型。
+- 如果 `models.json` 中该 provider 没有 `baseUrl` 或 `models`，扩展不做任何事。
+
+配置文件 `~/.pi/agent/gateway-models.json`（可省略）：
+
+```json
+{ "provider": "cpamc", "includeUnknown": false }
+```
+
+`provider` 默认是 `cpamc`。`includeUnknown: true` 会把 `models.json` 未列出的网关模型加进来，并使用默认值（文本输入、128000 上下文、16384 输出 token、不开思考）。image、tts、voice 类模型的 id 会跳过。
+
 ## 开发
 
 ```bash

@@ -93,6 +93,22 @@ Config `~/.pi/agent/claude-synced-skills.json` (optional). `skip` replaces the d
 { "skip": ["skill-creator", "docs"] }
 ```
 
+### gateway-models
+
+Pi has no `models.json` option to discover models from a gateway. This extension registers a `refreshModels` hook for one provider. The hook reads that provider's models from `models.json`, requests `<baseUrl>/models`, and keeps only the models the gateway lists. A model that the gateway removed disappears from the model list.
+
+- Model metadata (context window, thinking levels, per-model `api`) stays in `models.json`. An OpenAI-style `/models` response has only `id`, `created` and `owned_by`.
+- A failed request, a timeout (8 s) or an unexpected response returns the `models.json` list unchanged. An empty match does the same, so a broken gateway never removes every model.
+- The extension does nothing when `models.json` has no `baseUrl` or `models` for the provider.
+
+Config `~/.pi/agent/gateway-models.json` (optional):
+
+```json
+{ "provider": "cpamc", "includeUnknown": false }
+```
+
+`provider` defaults to `cpamc`. `includeUnknown: true` adds gateway models that `models.json` does not list. They get default values (text input, 128000 context, 16384 output tokens, no reasoning). Ids for image, tts and voice models are skipped.
+
 ## Develop
 
 ```bash
