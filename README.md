@@ -109,6 +109,15 @@ Config `~/.pi/agent/gateway-models.json` (optional):
 
 `provider` defaults to `cpamc`. `includeUnknown: true` adds gateway models that `models.json` does not list. They get default values (text input, 128000 context, 16384 output tokens, no reasoning). Ids for image, tts and voice models are skipped.
 
+### tool-reliability
+
+Stops repeated identical tool failures and helps the model recover from tool errors.
+
+- Tracks consecutive failures by fingerprint (tool name plus a stable serialization of the arguments). For bash and powershell the fingerprint also includes the session cwd and the full command. After the same fingerprint fails twice in a row, the next identical call is blocked and the model gets a change-approach instruction instead of a third copy of the same error.
+- Reset is narrow: a success clears only its own fingerprint. A successful edit or write also clears bash and powershell failures, because the code may have changed. Success of any other tool clears nothing else. Calls blocked by this extension do not add to the failure count.
+- Prechecks edit arguments before execution: empty oldText, oldText identical to newText, and duplicate or overlapping oldText within one call are blocked with a concrete fix. Runtime match failures (not found, multiple occurrences) stay with the native tool.
+- Appends a short recovery hint to real tool errors without rewriting them: edit not-found / not-unique / empty oldText, ENOENT on read and search tools, codemode syntax errors, and bash exiting non-zero with no output.
+
 ## Develop
 
 ```bash

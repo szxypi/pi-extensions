@@ -107,6 +107,15 @@ pi 的 `models.json` 没有从网关自动发现模型的选项。这个扩展�
 
 `provider` 默认是 `cpamc`。`includeUnknown: true` 会把 `models.json` 未列出的网关模型加进来，并使用默认值（文本输入、128000 上下文、16384 输出 token、不开思考）。image、tts、voice 类模型的 id 会跳过。
 
+### tool-reliability 工具可靠性
+
+拦截重复且参数相同的工具失败，并帮助模型从工具错误中恢复。
+
+- 按指纹跟踪连续失败（工具名加参数的稳定序列化）。bash 和 powershell 的指纹还包含会话 cwd 和完整命令。同一指纹连续失败 2 次后，后续相同调用被阻断，模型收到换方法的提示，而不是第三份同样的错误。
+- 重置范围窄：一次成功只清自身的指纹。成功的 edit 或 write 会额外清 bash 和 powershell 的失败记录，因为代码可能已改变。其他工具的成功不会清空别人的记录。被本扩展阻断的调用不计入失败次数。
+- 在执行前预检 edit 参数：空 oldText、oldText 与 newText 相同、同一批 oldText 重复或互相包含，都会带具体修复说明被阻断。运行期的匹配失败（找不到、多处匹配）仍交给原生工具处理。
+- 给真实工具错误追加简短恢复提示，不改写原文：edit 不匹配 / 不唯一 / 空 oldText，read 和搜索工具的 ENOENT，codemode 语法错误，bash 无输出非零退出。
+
 ## 开发
 
 ```bash
