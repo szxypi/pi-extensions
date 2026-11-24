@@ -8,7 +8,8 @@
  * identity escape keeps its backslash (see fix.ts). The tool_result handler
  * appends one note to the result, so the model learns the rule.
  *
- * Scripts that do not parse as JavaScript are left unchanged.
+ * TypeScript scripts and scripts in a markdown code fence are fixed too; the
+ * types and the fence stay. Scripts that still do not parse are left unchanged.
  * PI_CODEMODE_ESCAPES=0 turns the extension off.
  */
 

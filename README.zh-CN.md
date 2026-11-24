@@ -124,7 +124,7 @@ pi 的 `models.json` 没有从网关自动发现模型的选项。这个扩展�
 
 - 用 acorn 解析 codemode 脚本，把字符串字面量和无标签模板字面量中每个恒等转义的反斜杠补成两个。shell 和正则文本因此收到模型写的反斜杠。
 - 不改 JavaScript 定义的转义（`\n`、`\t`、`\b`、`\\`、`\'`、`\"`、`\x..`、`\u..`、数字）、续行、模板里的 `\$` 和 `` \` ``、正则字面量，以及 `String.raw` 等带标签模板。
-- 脚本不能按 JavaScript 解析时，原样执行。
+- TypeScript 脚本和包在 markdown 代码块里的脚本也会修正。扩展先生成等长的 JavaScript 视图（Node 的 `stripTypeScriptTypes` 只剥离模式把类型替换成空格，围栏行和围栏外的文字也替换成空格），再把反斜杠插回原脚本。类型和围栏保留给 pi-codemode-guard 处理。仍然不能解析的脚本（例如含 `enum` 的 TypeScript）原样执行。
 - 在 codemode 结果末尾追加一条说明，列出补过的转义，让模型改写成 `\\` 或 `String.raw`。
 
 `PI_CODEMODE_ESCAPES=0` 关闭本扩展。

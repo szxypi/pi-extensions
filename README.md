@@ -126,7 +126,7 @@ In a JavaScript string, `\(`, `\.`, `\|` or `\d` is an identity escape: JavaScri
 
 - Parses the codemode script with acorn and doubles the backslash of each identity escape in string literals and untagged template literals. The shell or regex text then gets the backslash the model wrote.
 - Does not change escapes that JavaScript defines (`\n`, `\t`, `\b`, `\\`, `\'`, `\"`, `\x..`, `\u..`, digits), line continuations, `\$` and `` \` `` in templates, regex literals, or tagged templates such as `String.raw`.
-- Leaves the script unchanged when it does not parse as JavaScript.
+- Also fixes TypeScript scripts and scripts in a markdown code fence. It parses a same-length JavaScript view (Node's `stripTypeScriptTypes` strip-only mode turns types into spaces, and fence lines and prose around the fence become spaces), then inserts the backslashes into the original script, so the types and the fence stay for pi-codemode-guard. Scripts that still do not parse, for example TypeScript with `enum`, run unchanged.
 - Appends one note to the codemode result that names the fixed escapes, so the model learns to write `\\` or `String.raw`.
 
 `PI_CODEMODE_ESCAPES=0` turns the extension off.
