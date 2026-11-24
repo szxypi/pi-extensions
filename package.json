@@ -27,5 +27,8 @@
   },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*"
+  },
+  "dependencies": {
+    "acorn": "^8.18.0"
   }
 }

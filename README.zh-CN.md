@@ -116,10 +116,24 @@ pi 的 `models.json` 没有从网关自动发现模型的选项。这个扩展�
 - 在执行前预检 edit 参数：空 oldText、oldText 与 newText 相同、同一批 oldText 重复或互相包含，都会带具体修复说明被阻断。运行期的匹配失败（找不到、多处匹配）仍交给原生工具处理。
 - 给真实工具错误追加简短恢复提示，不改写原文：edit 不匹配 / 不唯一 / 空 oldText，read 和搜索工具的 ENOENT，codemode 语法错误，bash 无输出非零退出。
 
+### codemode-escapes codemode 转义保留
+
+保留 JavaScript 从 codemode 脚本中丢掉的反斜杠。
+
+在 JavaScript 字符串里，`\(`、`\.`、`\|`、`\d` 是恒等转义，JavaScript 会丢掉反斜杠。脚本 ``tools.bash({command: `rg 'foo\(' src`})`` 交给 bash 的命令是 `rg 'foo(' src`，rg 报 `regex parse error: unclosed group`。
+
+- 用 acorn 解析 codemode 脚本，把字符串字面量和无标签模板字面量中每个恒等转义的反斜杠补成两个。shell 和正则文本因此收到模型写的反斜杠。
+- 不改 JavaScript 定义的转义（`\n`、`\t`、`\b`、`\\`、`\'`、`\"`、`\x..`、`\u..`、数字）、续行、模板里的 `\$` 和 `` \` ``、正则字面量，以及 `String.raw` 等带标签模板。
+- 脚本不能按 JavaScript 解析时，原样执行。
+- 在 codemode 结果末尾追加一条说明，列出补过的转义，让模型改写成 `\\` 或 `String.raw`。
+
+`PI_CODEMODE_ESCAPES=0` 关闭本扩展。
+
 ## 开发
 
 ```bash
-npm test                            # 单元测试（node --test，无需安装依赖）
+npm install                         # 安装测试需要的依赖（acorn）
+npm test                            # 单元测试（node --test）
 pi -e ./extensions/<名称>/index.ts   # 不安装，单次试用某个扩展
 ```
 

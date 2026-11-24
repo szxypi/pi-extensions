@@ -118,10 +118,24 @@ Stops repeated identical tool failures and helps the model recover from tool err
 - Prechecks edit arguments before execution: empty oldText, oldText identical to newText, and duplicate or overlapping oldText within one call are blocked with a concrete fix. Runtime match failures (not found, multiple occurrences) stay with the native tool.
 - Appends a short recovery hint to real tool errors without rewriting them: edit not-found / not-unique / empty oldText, ENOENT on read and search tools, codemode syntax errors, and bash exiting non-zero with no output.
 
+### codemode-escapes
+
+Keeps backslashes that JavaScript drops from codemode scripts.
+
+In a JavaScript string, `\(`, `\.`, `\|` or `\d` is an identity escape: JavaScript drops the backslash. A script such as ``tools.bash({command: `rg 'foo\(' src`})`` sends `rg 'foo(' src` to bash, and rg fails with `regex parse error: unclosed group`.
+
+- Parses the codemode script with acorn and doubles the backslash of each identity escape in string literals and untagged template literals. The shell or regex text then gets the backslash the model wrote.
+- Does not change escapes that JavaScript defines (`\n`, `\t`, `\b`, `\\`, `\'`, `\"`, `\x..`, `\u..`, digits), line continuations, `\$` and `` \` `` in templates, regex literals, or tagged templates such as `String.raw`.
+- Leaves the script unchanged when it does not parse as JavaScript.
+- Appends one note to the codemode result that names the fixed escapes, so the model learns to write `\\` or `String.raw`.
+
+`PI_CODEMODE_ESCAPES=0` turns the extension off.
+
 ## Develop
 
 ```bash
-npm test                          # unit tests (node --test, no install needed)
+npm install                       # install acorn, which codemode-escapes needs
+npm test                          # unit tests (node --test)
 pi -e ./extensions/<name>/index.ts  # try one extension without installing
 ```
 
